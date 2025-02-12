@@ -4,17 +4,16 @@ import { Request, Response } from 'express';
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+export {prisma};
+
 // var path = require("path");
 // var cookieParser = require("cookie-parser");
 // var logger = require("morgan");
 // const multer = require("multer");
 // const cors = require("cors");
 
-// var indexRouter = require("./routes/index");
-
 import authAPIRouter from "./routes/authAPI";
 import apiV1Router from "./routes/api_v1";
-
 
 var app = express();
 
@@ -42,8 +41,6 @@ app.use(express.json());
 
 // multipart/form-data nuskaitymas, failų įkėlimas
 // app.use(multer({ dest: "uploads/", fileFilter: fileFilter }).any());
-
-// app.use("/", indexRouter);
 
 app.use("/", authAPIRouter);
 app.use("/api/v1/", apiV1Router); 

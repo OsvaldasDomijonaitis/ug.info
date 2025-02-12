@@ -4,9 +4,9 @@ import { body, validationResult, matchedData } from "express-validator";
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import passport from "../passport";
 
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma } from "../app";
 
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || "";
 
@@ -91,6 +91,28 @@ const login = async (
   });
 };
 
+const isAuth = (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate("jwt", { session: false }, function (err: any, user: User, info: any) {
+    if (user) {
+      req.user = user;
+      return next();
+    }
+    return res
+      .status(401)
+      .json({ error: { status: 401, message: "Unauthorized" } });
+  })(req, res, next);
+};
 
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate("jwt", { session: false }, function (err: any, user: User, info: any) {
+    if (user && user.role === 2) {
+      req.user = user;
+      return next();
+    }
+    return res
+      .status(401)
+      .json({ error: { status: 401, message: "Unauthorized" } });
+  })(req, res, next);
+};
 
-export default { validateLogin, login };
+export default { validateLogin, login, isAuth, isAdmin };

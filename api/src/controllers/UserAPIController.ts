@@ -33,7 +33,7 @@ const index = async function (req: Request, res: Response, next: NextFunction) {
   res.json(users);
 };
 
-const show = async (req: Request, res: Response | any, next: NextFunction) => {
+const show = async (req: Request | any, res: Response | any, next: NextFunction) => {
   const user = await prisma.user.findFirst({
     omit: { password: true },
     where: { id: Number(req.params.id) },
@@ -47,11 +47,11 @@ const show = async (req: Request, res: Response | any, next: NextFunction) => {
   }
 
   // galima tik adminui arba tam pačiam varototjui
-  // if (req.user.role != 2 && req.user.id != user.id) {
-  //   return res.status(401).json({
-  //     error: { status: 401, messages: "Unauthorized" },
-  //   });
-  // }
+  if (req.user.role != 2 && req.user.id != user.id) {
+    return res.status(401).json({
+      error: { status: 401, messages: "Unauthorized" },
+    });
+  }
 
   // Atiduodame duomenis JSON pavidalu
   return res.json(user);

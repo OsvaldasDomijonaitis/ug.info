@@ -4,7 +4,7 @@ var router = express.Router();
 import { body } from "express-validator";
 
 import AuthAPIController from "../controllers/AuthAPIController";
-// const UserAPIController = require("../controllers/UserAPIController");
+import UserAPIController from "../controllers/UserAPIController";
 
 router.post(
   "/login",
@@ -25,6 +25,6 @@ router.post(
   AuthAPIController.login
 );
 
-// router.post("/register", UserAPIController.validateStore(), UserAPIController.store);
+router.post("/register", UserAPIController.validateStore(), UserAPIController.store);
 
 export default router;
