@@ -14,3 +14,11 @@ model User {
   role     Int    @default(1) @db.UnsignedTinyInt
   status   Int    @default(1) @db.UnsignedTinyInt
 }
+
+model Client {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  link        String  @unique @db.VarChar(255)
+  name        String  @db.VarChar(255)
+  description String  @db.Text
+  img         String? @db.VarChar(255)
+}
