@@ -1,11 +1,8 @@
+import 'dotenv/config';
 import express from 'express';
 import { Request, Response } from 'express';
-const { PrismaClient } = require("@prisma/client");
-
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-
-
-
 
 // var path = require("path");
 // var cookieParser = require("cookie-parser");
@@ -14,7 +11,9 @@ const prisma = new PrismaClient();
 // const cors = require("cors");
 
 // var indexRouter = require("./routes/index");
-// var authAPIRouter = require("./routes/authAPI");
+
+import authAPIRouter from "./routes/authAPI";
+
 // var apiV1Router = require("./routes/api_v1");
 
 var app = express();
@@ -45,8 +44,12 @@ app.use(express.json());
 // app.use(multer({ dest: "uploads/", fileFilter: fileFilter }).any());
 
 // app.use("/", indexRouter);
-// app.use("/", authAPIRouter);
-// app.use("/api/v1/", apiV1Router);
+
+app.use("/", authAPIRouter);
+
+// app.use("/api/v1/", apiV1Router); 
+
+
 
 app.get("/api/testas/", async (req: Request, res: Response) => {
   res.send("Testinis puslapis");
@@ -56,10 +59,6 @@ app.get("/api/users/", async (req: Request, res: Response) => {
   const usersiai = await prisma.user.findMany();
   res.json(usersiai);
 });
-
-// module.exports = app;
-
-
 
 const server = app.listen(3000, () =>
   console.log(`

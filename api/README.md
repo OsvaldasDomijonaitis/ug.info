@@ -16,13 +16,24 @@ Padarome .env.example failo kopiją, kurią pavadiname .env
 
 Importuojame duomenų bazę iš failo js3_express_db.sql
 
-## Paleidimas
+## Paleidimas programuojant
 
 Vykdome komandą
 
 ```bash
+npm run dev
+```
+
+
+## Paleidimas serveryje
+
+Vykdome komandą
+
+```bash
+npx tsc
 npm start
 ```
+
 
 ## Demo vartotojai
 
