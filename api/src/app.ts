@@ -3,13 +3,12 @@ import express from 'express';
 import { Request, Response } from 'express';
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+export {prisma}; 
 
-export {prisma};
-
-// var path = require("path");
+import path from "path";
 // var cookieParser = require("cookie-parser");
 // var logger = require("morgan");
-// const multer = require("multer");
+import multer from "multer";
 // const cors = require("cors");
 
 import authAPIRouter from "./routes/authAPI";
@@ -22,25 +21,25 @@ var app = express();
 app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
-// function fileFilter(req, file, cb) {
-//   // console.log(file);
+function fileFilter(req: any, file: any, cb: any) {
+  // console.log(file);
 
-//   try {
-//     if (["image/png", "image/jpeg"].includes(file.mimetype)) {
-//       cb(null, true);
-//     } else {
-//       cb(null, false);
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     cb(new Error('File upload problem'))
-//   }
-// }
+  try {
+    if (["image/png", "image/jpeg"].includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  } catch (error) {
+    console.log(error);
+    cb(new Error('File upload problem'))
+  }
+}
 
 // multipart/form-data nuskaitymas, failų įkėlimas
-// app.use(multer({ dest: "uploads/", fileFilter: fileFilter }).any());
+app.use(multer({ dest: "uploads/", fileFilter: fileFilter }).any());
 
 app.use("/", authAPIRouter);
 app.use("/api/v1/", apiV1Router); 
@@ -55,7 +54,6 @@ app.get("/api/users/", async (req: Request, res: Response) => {
 });
 
 const server = app.listen(3000, () =>
-  console.log(`
-🚀 Server ready at: http://localhost:3000
-⭐️ See sample requests: https://github.com/prisma/prisma-examples/blob/latest/orm/express/README.md#using-the-rest-api`),
-)
+  console.log(`🚀 Server ready at: http://localhost/api`)
+);
+// ⭐️ See sample requests: https://github.com/prisma/prisma-examples/blob/latest/orm/express/README.md#using-the-rest-api`

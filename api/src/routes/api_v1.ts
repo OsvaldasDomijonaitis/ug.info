@@ -1,10 +1,10 @@
 import express from "express";
 const router = express.Router();
 
-// var clientsAPIRouter = require("./clientsAPI");
+import clientsAPIRouter from "./clientsAPI";
 import usersAPIRouter from "./usersAPI";
 
-// router.use("/clients", clientsAPIRouter);
+router.use("/clients", clientsAPIRouter);
 router.use("/users", usersAPIRouter);
 
 export default router;

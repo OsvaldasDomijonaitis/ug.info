@@ -1,11 +1,8 @@
-// const UserModel = require("../models/UserModel");
 const { body, validationResult, matchedData } = require("express-validator");
 import bcrypt from "bcrypt";
 
 import { NextFunction, Request, Response } from "express";
-
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma } from "../app";
 
 /**
  * CRUD resurso valdymas

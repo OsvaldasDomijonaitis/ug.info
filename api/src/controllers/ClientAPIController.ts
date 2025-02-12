@@ -1,6 +1,9 @@
-const ClientModel = require("../models/ClientModel");
-const { body, validationResult, matchedData } = require("express-validator");
-const fs = require("fs/promises");
+import { Client } from './../../node_modules/.prisma/client/index.d';
+import { body, validationResult, matchedData } from "express-validator";
+import fs from "fs/promises";
+import {prisma} from "../app";
+import { Request, Response, NextFunction } from "express";
+
 
 /**
  * CRUD resurso valdymas
@@ -16,7 +19,13 @@ const fs = require("fs/promises");
  */
 
 // failų įkėlimo funkcija
-const moveUploadedFile = async (files, field, destination) => {
+interface UploadedFile {
+  fieldname: string;
+  mimetype: "image/webp" | "image/png" | "image/jpeg";
+  path: string;
+}
+
+const moveUploadedFile = async (files: UploadedFile[], field: string, destination: string) => {
   let file = null;
   for (file of files) {
     if (file.fieldname == field ) {
@@ -24,15 +33,12 @@ const moveUploadedFile = async (files, field, destination) => {
     }
     file = null;
   }
-    
   if (!file) {
     return null;
   }
 
   const ext = {"image/webp": ".webp", "image/png": ".png", "image/jpeg": ".jpg"};
-  let file_name = destination + ext[file.mimetype];
-  // console.log(file_name);
-  // console.log(file.path);
+  let file_name = destination + ext[file.mimetype as keyof typeof ext];
   
   await fs.rename(file.path, "./public" + file_name);
   
@@ -40,18 +46,20 @@ const moveUploadedFile = async (files, field, destination) => {
 }
 
 // klientų sąrašo valdiklis (kontroleris)
-module.exports.index = async function (req, res, next) {
+const index = async function (req: Request, res: Response, next: NextFunction) {
   // gaumane visus klientus iš modelio
-  const clients = await ClientModel.getAll();
+  const clients = await prisma.client.findMany();
 
   // išsiunčiame json pavidalu
   res.json(clients);
 };
 
 // kliento informacijos kontroleris
-module.exports.show = async (req, res, next) => {
+const show = async (req: Request, res: Response | any, next: NextFunction) => {
   // gauname klientą pagal link'ą
-  const client = await ClientModel.getByLink(req.params.clientLink);
+  const client = await prisma.client.findFirst({
+    where: { link: req.params.clientLink },
+  }); 
 
   // jei vartotojo nerado
   if (!client) {
@@ -64,7 +72,7 @@ module.exports.show = async (req, res, next) => {
   res.json(client);
 };
 
-module.exports.validateStore = () => [
+const validateStore = () => [
   body("name")
     .trim()
     .notEmpty()
@@ -79,22 +87,24 @@ module.exports.validateStore = () => [
   body("img").trim().optional().escape(),
 ];
 
-module.exports.store = async (req, res, next) => {
+const store = async (req: Request | any, res: Response | any, next: NextFunction) => {
   // iš užklausos surenkame ir validuojame duomenis
   const validation = validationResult(req);
 
   // klaidos validuojant duomenis
   if (!validation.isEmpty()) {
     return res.status(400).json({
-      error: { status: 400, messages: validation.errors },
+      error: { status: 400, messages: validation.array() },
     });
   }
 
   // gauname validuotus duomenis
-  const data = matchedData(req);
+  const data: Client = matchedData(req);
 
   // tikriname ar laisvas linkas
-  const client = await ClientModel.getByLink(data.link);
+  let client = await prisma.client.findFirst({
+    where: { link: data.link },
+  });
 
   if (client) {
     // linkas jau egzistuoja
@@ -104,9 +114,9 @@ module.exports.store = async (req, res, next) => {
   }
 
   // siunčiame į DB per modelį
-  const result = await ClientModel.insert(data);
+  client = await prisma.client.create({ data });
 
-  if (!result) {
+  if (!client) {
     // nepavyko įterpti
     return res.status(500).json({
       error: { status: 500, messages: "Serverio klaida" },
@@ -118,20 +128,20 @@ module.exports.store = async (req, res, next) => {
 
   // vykdome failo įkėlimą
   if (req.files) {
-    let file_name = await moveUploadedFile(req.files, "img", "/images/clients/client_img_"+result);
+    let file_name = await moveUploadedFile(req.files, "img", "/images/clients/client_img_"+client.id);
     if (file_name) {
-      await ClientModel.update({img: file_name}, result);
+      await prisma.client.update({where: {id: client.id}, data: {img: file_name}});
     }
   }
 
   return res.status(201).json({
     status: "success",
-    id: result,
+    id: client.id,
     messages: "Sukurtas naujas klientas",
   });
 };
 
-module.exports.validateUpdate = () => [
+const validateUpdate = () => [
   body("name")
     .trim()
     .notEmpty()
@@ -147,8 +157,10 @@ module.exports.validateUpdate = () => [
 ];
 
 // kliento informacijos keitimo formos apdorojimo kontroleris
-module.exports.update = async (req, res, next) => {
-  const client = await ClientModel.getByLink(req.params.clientLink);
+const update = async (req: Request | any, res: Response | any, next: NextFunction) => {
+  let client = await prisma.client.findFirst({
+    where: { link: req.params.clientLink },
+  });
 
   // jei kliento nėra DB
   if (!client) {
@@ -164,7 +176,7 @@ module.exports.update = async (req, res, next) => {
   // klaidos validuojant duomenis
   if (!validation.isEmpty()) {
     return res.status(400).json({
-      error: { status: 400, messages: validation.errors },
+      error: { status: 400, messages: validation.array() },
     });
   }
 
@@ -172,7 +184,9 @@ module.exports.update = async (req, res, next) => {
   const data = matchedData(req);
 
   // tikriname link'ą
-  const client_for_link = await ClientModel.getByLink(data.link);
+  const client_for_link = await prisma.client.findFirst({
+    where: { link: data.link },
+  });
 
   if (client_for_link && client_for_link.link != req.params.clientLink) {
     return res.status(400).json({
@@ -189,9 +203,12 @@ module.exports.update = async (req, res, next) => {
   }
 
   // siunčiame į DB per modelį
-  const result = await ClientModel.update(data, client.id);
+  client = await prisma.client.update({
+    where: { id: client.id },
+    data,
+  });
 
-  if (!result) {
+  if (!client) {
     return res.status(500).json({
       error: { status: 500, messages: "Serverio klaida" },
     });
@@ -204,8 +221,10 @@ module.exports.update = async (req, res, next) => {
 };
 
 // kliento trynimo kontroleris
-module.exports.destroy = async (req, res, next) => {
-  const client = await ClientModel.getByLink(req.params.clientLink);
+const destroy = async (req: Request, res: Response | any, next: NextFunction) => {
+  const client = await prisma.client.findFirst({
+    where: { link: req.params.clientLink },
+  }); 
 
   // jei kliento nėra DB
   if (!client) {
@@ -214,7 +233,9 @@ module.exports.destroy = async (req, res, next) => {
     });
   }
 
-  const result = await ClientModel.delete(client.id);
+  const result = await prisma.client.delete({
+    where: { id: client.id },
+  });
 
   if (!result) {
     return res.status(500).json({
@@ -229,3 +250,5 @@ module.exports.destroy = async (req, res, next) => {
     messages: "Klientas ištrintas",
   });
 };
+
+export default { index, show, store, update, destroy, validateStore, validateUpdate };

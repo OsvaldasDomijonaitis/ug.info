@@ -1,5 +1,4 @@
 import { User } from './../../node_modules/.prisma/client/index.d';
-// const UserModel = require("../models/UserModel");
 import { body, validationResult, matchedData } from "express-validator";
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
