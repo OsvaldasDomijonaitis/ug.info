@@ -13,8 +13,8 @@ const prisma = new PrismaClient();
 // var indexRouter = require("./routes/index");
 
 import authAPIRouter from "./routes/authAPI";
+import apiV1Router from "./routes/api_v1";
 
-// var apiV1Router = require("./routes/api_v1");
 
 var app = express();
 
@@ -46,10 +46,7 @@ app.use(express.json());
 // app.use("/", indexRouter);
 
 app.use("/", authAPIRouter);
-
-// app.use("/api/v1/", apiV1Router); 
-
-
+app.use("/api/v1/", apiV1Router); 
 
 app.get("/api/testas/", async (req: Request, res: Response) => {
   res.send("Testinis puslapis");

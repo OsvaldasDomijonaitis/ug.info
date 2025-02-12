@@ -36,7 +36,7 @@ const validateLogin = () => {
 
 const login = async (
   req: Request,
-  res: any,
+  res: Response | any,
   next: NextFunction
 ): Promise<void> => {
   // iš užklausos surenkame ir validuojame duomenis

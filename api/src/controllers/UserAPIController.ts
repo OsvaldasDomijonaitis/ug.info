@@ -1,6 +1,11 @@
-const UserModel = require("../models/UserModel");
+// const UserModel = require("../models/UserModel");
 const { body, validationResult, matchedData } = require("express-validator");
-const bcrypt = require("bcrypt");
+import bcrypt from "bcrypt";
+
+import { NextFunction, Request, Response } from "express";
+
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 /**
  * CRUD resurso valdymas
@@ -18,16 +23,21 @@ const bcrypt = require("bcrypt");
 const fields = ["id", "email", "role", "status"];
 
 // vartotojų sąrašo valdiklis (kontroleris)
-module.exports.index = async function (req, res, next) {
+const index = async function (req: Request, res: Response, next: NextFunction) {
   // gaumane visus vartotojus iš modelio
-  const users = await UserModel.getAll(fields);
+  const users = await prisma.user.findMany({
+    omit: { password: true },
+  });
 
   // Atiduodame duomenis JSON pavidalu
   res.json(users);
 };
 
-module.exports.show = async (req, res, next) => {
-  const user = await UserModel.getById(req.params.id, fields);
+const show = async (req: Request, res: Response | any, next: NextFunction) => {
+  const user = await prisma.user.findFirst({
+    omit: { password: true },
+    where: { id: Number(req.params.id) },
+  });
 
   // jei vartotojo nerado
   if (!user) {
@@ -37,17 +47,17 @@ module.exports.show = async (req, res, next) => {
   }
 
   // galima tik adminui arba tam pačiam varototjui
-  if (req.user.role != 2 && req.user.id != user.id) {
-    return res.status(401).json({
-      error: { status: 401, messages: "Unauthorized" },
-    });
-  }
+  // if (req.user.role != 2 && req.user.id != user.id) {
+  //   return res.status(401).json({
+  //     error: { status: 401, messages: "Unauthorized" },
+  //   });
+  // }
 
   // Atiduodame duomenis JSON pavidalu
-  res.json(user);
+  return res.json(user);
 };
 
-module.exports.validateStore = () => [
+const validateStore = () => [
   body("email")
     .trim()
     .notEmpty()
@@ -62,7 +72,7 @@ module.exports.validateStore = () => [
     .escape(),
 ];
 
-module.exports.store = async (req, res, next) => {
+const store = async (req: Request, res: Response | any, next: NextFunction) => {
   // iš užklausos surenkame ir validuojame duomenis
   const validation = validationResult(req);
 
@@ -77,7 +87,10 @@ module.exports.store = async (req, res, next) => {
   const data = matchedData(req);
 
   // tikriname ar laisvas el. paštas
-  const user = await UserModel.getByEmail(data.email);
+  let user = await prisma.user.findFirst({
+    where: { email: data.email },
+  });
+
   if (user) {
     // el. paštas jau egzistuoja
     return res.status(400).json({
@@ -89,9 +102,9 @@ module.exports.store = async (req, res, next) => {
   data.password = await bcrypt.hash(data.password, 10);
 
   // siunčiame į DB per modelį
-  const result = await UserModel.insert(data);
+  user = await prisma.user.create({ data });
 
-  if (!result) {
+  if (!user) {
     return res.status(500).json({
       error: { status: 500, messages: "Serverio klaida" },
     });
@@ -99,12 +112,12 @@ module.exports.store = async (req, res, next) => {
 
   return res.status(201).json({
     status: "success",
-    id: result,
+    id: user.id,
     messages: "Sukurtas naujas vartotojas",
   });
 };
 
-module.exports.validateUpdate = () => [
+const validateUpdate = () => [
   body("email")
     .trim()
     .notEmpty()
@@ -122,8 +135,11 @@ module.exports.validateUpdate = () => [
 ];
 
 // vartotojo informacijos keitimas
-module.exports.update = async (req, res, next) => {
-  const user = await UserModel.getById(req.params.id);
+const update = async (req: Request, res: Response | any, next: NextFunction) => {
+  const user = await prisma.user.findFirst({
+    where: { id: Number(req.params.id) },
+  });
+  
   // jei vartotojo nėra DB
   if (!user) {
     return res.status(404).json({
@@ -134,7 +150,6 @@ module.exports.update = async (req, res, next) => {
   // validacija
   // iš užklausos surenkame ir validuojame duomenis
   const validation = validationResult(req);
-
 
   // klaidos validuojant duomenis
   if (!validation.isEmpty()) {
@@ -147,7 +162,10 @@ module.exports.update = async (req, res, next) => {
   const data = matchedData(req);
 
   // tikriname el. paštą
-  const user_for_email = await UserModel.getByEmail(data.email);
+  const user_for_email = await prisma.user.findFirst({
+    where: { email: data.email },
+  });
+  
   if (user_for_email && user_for_email.email != user.email) {
     return res.status(400).json({
       error: { status: 400, messages: "Toks el. pašto adresas jau egzistuoja" },
@@ -164,7 +182,10 @@ module.exports.update = async (req, res, next) => {
   }
 
   // siunčiame į DB per modelį
-  const result = await UserModel.update(data, user.id);
+  const result = await prisma.user.update({
+    where: { id: user.id },
+    data,
+  });
 
   if (!result) {
     return res.status(500).json({
@@ -179,9 +200,11 @@ module.exports.update = async (req, res, next) => {
 };
 
 // vartotojo trynimo kontroleris
-module.exports.destroy = async (req, res, next) => {
-  const user = await UserModel.getById(req.params.id);
-
+const destroy = async (req: Request, res: Response | any, next: NextFunction) => {
+  const user = await prisma.user.findFirst({
+    where: { id: Number(req.params.id) },
+  });
+  
   // jei vartotojo nėra DB
   if (!user) {
     return res.status(404).json({
@@ -189,8 +212,10 @@ module.exports.destroy = async (req, res, next) => {
     });
   }
 
-  const result = await UserModel.delete(user.id);
-
+  const result = await prisma.user.delete({
+    where: { id: user.id },
+  });
+  
   if (!result) {
     return res.status(500).json({
       error: { status: 500, messages: "Serverio klaida" },
@@ -201,4 +226,14 @@ module.exports.destroy = async (req, res, next) => {
     status: "success",
     messages: "Vartotojas ištrintas",
   });
+};
+
+export default {
+  index,
+  show,
+  validateStore,
+  store,
+  validateUpdate,
+  update,
+  destroy,
 };
