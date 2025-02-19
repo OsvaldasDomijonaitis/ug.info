@@ -46,15 +46,15 @@ services:
       timeout: 5s
       retries: 10
   
-  adminer:
-    image: adminer:latest
-    restart: unless-stopped
-    ports:
-      - 8000:8080
-    depends_on:
-      - mysql_db
-    environment:
-      ADMINER_DEFAULT_SERVER: mysql_db
+  # adminer:
+  #   image: adminer:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8000:8080
+  #   depends_on:
+  #     - mysql_db
+  #   environment:
+  #     ADMINER_DEFAULT_SERVER: mysql_db
 
   nginx:  
     image: nginx

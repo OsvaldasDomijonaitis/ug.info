@@ -12,21 +12,24 @@ const users = [
     email: "admin@example.com",
     role: 2,
   },
+  {
+    email: "jonas@gmail.com"
+  }
 ];
 
-const clients = [
-  {
-    link: "jonas",
-    name: "Jonas Jonaitis",
-    description: "Jono Jonaičio puslapis iš duomenų bazės.",
-    img: "/images/avatar.png",
-  },
-  {
-    link: "petras",
-    name: "Petras Petraitis",
-    description: "Petro Petraičio puslapis iš duomenų bazės.",
-  },
-];
+// const clients = [
+//   {
+//     link: "jonas",
+//     name: "Jonas Jonaitis",
+//     description: "Jono Jonaičio puslapis iš duomenų bazės.",
+//     img: "/images/avatar.png",
+//   },
+//   {
+//     link: "petras",
+//     name: "Petras Petraitis",
+//     description: "Petro Petraičio puslapis iš duomenų bazės.",
+//   },
+// ];
 
 async function main() {
   console.log(`Start seeding ...`);
@@ -43,15 +46,15 @@ async function main() {
     console.log(`Sukurtas vartotojas: ${userData.email}`);
   }
   
-  console.log(`Client seeding ...`);
-  for (const client of clients) {
-    const clientData = await prisma.client.upsert({
-      where: { link: client.link },
-      update: {},
-      create: client,
-    });
-    console.log(`Sukurtas klientas: ${clientData.link}`);
-  }
+  // console.log(`Client seeding ...`);
+  // for (const client of clients) {
+  //   const clientData = await prisma.client.upsert({
+  //     where: { link: client.link },
+  //     update: {},
+  //     create: client,
+  //   });
+  //   console.log(`Sukurtas klientas: ${clientData.link}`);
+  // }
 
   console.log(`Seeding finished.`);
 }
