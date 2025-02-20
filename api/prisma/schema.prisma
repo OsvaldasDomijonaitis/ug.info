@@ -54,7 +54,7 @@ model ForumPost {
   userId  Int      @db.UnsignedInt
   title   String   @db.VarChar(255)
   body    String   @db.Text
-  created DateTime @default(now()) @db.Timestamp
+  created DateTime @default(now())
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   postTags ForumPostTag[]
@@ -75,7 +75,7 @@ model ForumPostMessage {
   postId  Int      @db.UnsignedInt
   userId  Int      @db.UnsignedInt
   body    String   @db.Text
-  created DateTime @default(now()) @db.Timestamp
+  created DateTime @default(now())
 
   post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
