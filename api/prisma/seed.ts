@@ -63,6 +63,7 @@ async function main() {
   }
 
   if ((await prisma.event.count()) < 10) {
+  // if ((await prisma.event.count()) < 10) {
     console.log(`Event seeding ...`);
     const users = await prisma.user.findMany();
     for (let i = 0; i < 50; i++) {

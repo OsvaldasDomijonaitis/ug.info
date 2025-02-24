@@ -17,22 +17,24 @@ services:
       - ./api:/app
     # ports:
     #   - 3000:3000
-    command: sh -c 'npm i && npm run migrate && npm run seed && npm run dev'
+    command: sh -c 'npm i && npm run dev'
+    # command: sh -c 'npm i && npm run migrate && npm run seed && npm run dev'
     environment:
       # DB_HOST: mysql_db
       # DB_USER: root
       # DB_PASSWORD: slaptazodis
       # DB_NAME: uginfo
       # DB_PORT: 3306
-      DATABASE_URL: mysql://root:slaptazodis@mysql_db:3306/uginfo
-      CHOKIDAR_USEPOLLING: true
+      - DATABASE_URL=mysql://root:slaptazodis@mysql_db:3306/uginfo
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       mysql_db:
         condition: service_healthy
    
 
   mysql_db:
-    image: mysql:8
+    image: mysql:latest
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: slaptazodis
       MYSQL_DATABASE: uginfo
@@ -64,7 +66,6 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - react
-
 
 volumes:
   bd_data:
