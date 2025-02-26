@@ -7,23 +7,12 @@ import UserAPIController from "../controllers/UserAPIController";
 // const { isAuth, isAdmin } = require("../passport");
 
 // vartotojų sąrašas
-router.get("/", Auth.isAdmin, UserAPIController.index);
+router.get("/user/all", Auth.isAdmin, UserAPIController.getAllUsers);
 
 // vartotojo informacija
-router.get("/:id", Auth.isAuth, UserAPIController.show);
+router.get("/user/:id", Auth.isAuth, UserAPIController.getOneUser);
 
 // sukūrimo apdorojimas
 router.post("/", Auth.isAdmin, UserAPIController.validateStore(), UserAPIController.store);
-
-// redagavimo apdorojimas
-router.put(
-  "/:id/",
-  Auth.isAdmin,
-  UserAPIController.validateUpdate(),
-  UserAPIController.update
-);
-
-// kliento trynimo adresas
-router.delete("/:id/", Auth.isAdmin, UserAPIController.destroy);
 
 export default router;

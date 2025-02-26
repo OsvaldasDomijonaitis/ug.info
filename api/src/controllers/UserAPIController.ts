@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../app";
+import { get } from "http";
 
 /**
  * CRUD resurso valdymas
@@ -17,41 +18,36 @@ import { prisma } from "../app";
  * destroy(id)- /api/v1/users/:id        - DELETE    - vieno vartotojo ištrynimas
  */
 
-const fields = ["id", "email", "role", "status"];
 
 // vartotojų sąrašo valdiklis (kontroleris)
-const index = async function (req: Request, res: Response, next: NextFunction) {
-  // gaumane visus vartotojus iš modelio
-  const users = await prisma.user.findMany({
-    omit: { password: true },
-  });
-
-  // Atiduodame duomenis JSON pavidalu
-  res.json(users);
+const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({
+      error: { status: 500, messages: "Serverio klaida" }
+    });
+  }
 };
 
-const show = async (req: Request | any, res: Response | any, next: NextFunction) => {
-  const user = await prisma.user.findFirst({
-    omit: { password: true },
-    where: { id: Number(req.params.id) },
-  });
-
-  // jei vartotojo nerado
-  if (!user) {
-    return res.status(404).json({
-      error: { status: 404, messages: "Vartotojas neegzistuoja" },
+const getOneUser = async (req: Request, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: Number(req.params.id) },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+        role: true,
+      },
+    });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ 
+      error: { status: 500, messages: "Serverio klaida" }
     });
   }
-
-  // galima tik adminui arba tam pačiam varototjui
-  if (req.user.role != 2 && req.user.id != user.id) {
-    return res.status(401).json({
-      error: { status: 401, messages: "Unauthorized" },
-    });
-  }
-
-  // Atiduodame duomenis JSON pavidalu
-  return res.json(user);
 };
 
 const validateStore = () => [
@@ -226,8 +222,8 @@ const destroy = async (req: Request, res: Response | any, next: NextFunction) =>
 };
 
 export default {
-  index,
-  show,
+  getAllUsers,
+  getOneUser,
   validateStore,
   store,
   validateUpdate,
