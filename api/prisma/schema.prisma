@@ -15,8 +15,8 @@ model User {
   status   Int     @default(1) @db.UnsignedTinyInt
   events   Event[]
   rates    Rate[]
-  posts    ForumPost[]
-  messages ForumPostMessage[]
+  posts    Post[]
+  messages Message[]
 }
 
 model Event {
@@ -42,14 +42,14 @@ model Rate {
   event       Event  @relation(fields: [eventId], references: [id])
 }
 
-model ForumTag {
+model Tag {
   id   Int    @id @default(autoincrement()) @db.UnsignedInt
   name String @unique @db.VarChar(50)
 
-  postTags ForumPostTag[]
+  postTags PostTag[]
 }
 
-model ForumPost {
+model Post {
   id      Int      @id @default(autoincrement()) @db.UnsignedInt
   userId  Int      @db.UnsignedInt
   title   String   @db.VarChar(255)
@@ -57,26 +57,26 @@ model ForumPost {
   created DateTime @default(now())
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  postTags ForumPostTag[]
-  messages ForumPostMessage[]
+  postTags PostTag[]
+  messages Message[]
 }
 
-model ForumPostTag {
+model PostTag {
   postId Int       @db.UnsignedInt
   tagId  Int       @db.UnsignedInt
-  post   ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  tag    ForumTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([postId, tagId])
 }
 
-model ForumPostMessage {
+model Message {
   id      Int      @id @default(autoincrement()) @db.UnsignedInt
   postId  Int      @db.UnsignedInt
   userId  Int      @db.UnsignedInt
   body    String   @db.Text
   created DateTime @default(now())
 
-  post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
