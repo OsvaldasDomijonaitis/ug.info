@@ -8,11 +8,11 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement()) @db.UnsignedInt
-  email    String  @unique
+  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  email    String    @unique
   password String
-  role     Int     @default(1) @db.UnsignedTinyInt
-  status   Int     @default(1) @db.UnsignedTinyInt
+  role     Int       @default(1) @db.UnsignedTinyInt
+  status   Int       @default(1) @db.UnsignedTinyInt
   events   Event[]
   rates    Rate[]
   posts    Post[]
@@ -20,26 +20,36 @@ model User {
 }
 
 model Event {
-  id          Int      @id @default(autoincrement()) @db.UnsignedInt
-  userId      Int      @db.UnsignedInt
-  slug        String   @unique @db.VarChar(255)
-  name        String   @db.VarChar(255)
-  date        DateTime @db.Timestamp
-  place       String   @db.VarChar(225)
-  description String   @db.Text
-  img         String?  @db.VarChar(255)
-  status      Int      @default(2) @db.UnsignedInt
-  user        User     @relation(fields: [userId], references: [id])
+  id          Int        @id @default(autoincrement()) @db.UnsignedInt
+  userId      Int        @db.UnsignedInt
+  slug        String     @unique @db.VarChar(255)
+  name        String     @db.VarChar(255)
+  date        DateTime   @db.Timestamp
+  place       String     @db.VarChar(225)
+  description String     @db.Text
+  img         String?    @db.VarChar(255)
+  status      Int        @default(2) @db.UnsignedInt
+  user        User       @relation(fields: [userId], references: [id])
   rates       Rate[]
+  EventTag    EventTag[]
 }
 
 model Rate {
-  id          Int    @id @default(autoincrement()) @db.UnsignedInt
-  userId      Int    @db.UnsignedInt
-  rate        Int    @default(1) @db.UnsignedSmallInt
-  eventId     Int    @db.UnsignedInt
-  user        User   @relation(fields: [userId], references: [id])
-  event       Event  @relation(fields: [eventId], references: [id])
+  id      Int   @id @default(autoincrement()) @db.UnsignedInt
+  userId  Int   @db.UnsignedInt
+  rate    Int   @default(1) @db.UnsignedSmallInt
+  eventId Int   @db.UnsignedInt
+  user    User  @relation(fields: [userId], references: [id])
+  event   Event @relation(fields: [eventId], references: [id])
+}
+
+model EventTag {
+  eventId Int   @db.UnsignedInt
+  tagId   Int   @db.UnsignedInt
+  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, tagId])
 }
 
 model Tag {
@@ -47,6 +57,7 @@ model Tag {
   name String @unique @db.VarChar(50)
 
   postTags PostTag[]
+  EventTag EventTag[]
 }
 
 model Post {
@@ -62,8 +73,8 @@ model Post {
 }
 
 model PostTag {
-  postId Int       @db.UnsignedInt
-  tagId  Int       @db.UnsignedInt
+  postId Int  @db.UnsignedInt
+  tagId  Int  @db.UnsignedInt
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
@@ -78,5 +89,5 @@ model Message {
   created DateTime @default(now())
 
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
