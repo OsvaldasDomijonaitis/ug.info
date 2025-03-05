@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 
 // import clientsAPIRouter from "./clientsAPI";
-import usersAPIRouter from "./usersAPI";
+import usersAPIRouter from "./userAPI";
 
 // router.use("/clients", clientsAPIRouter);
 router.use("/users", usersAPIRouter);

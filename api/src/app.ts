@@ -49,8 +49,15 @@ app.get("/api/testas/", async (req: Request, res: Response) => {
 });
 
 app.get("/api/users/", async (req: Request, res: Response) => {
-  const usersiai = await prisma.user.findMany();
-  res.json(usersiai);
+  const users = await prisma.user.findMany();
+  res.json(users);
+});
+
+app.get("/api/users/:id", async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({
+    where: { id: Number(req.params.id) },
+  });
+  res.json(user);
 });
 
 const server = app.listen(3000, () =>
