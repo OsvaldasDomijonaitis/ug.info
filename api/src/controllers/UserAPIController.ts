@@ -1,9 +1,10 @@
-const { body, validationResult, matchedData } = require("express-validator");
-import bcrypt from "bcrypt";
+import { Request, Response } from 'express';
+import { body, validationResult, matchedData } from 'express-validator';
 
-import { NextFunction, Request, Response } from "express";
-import { prisma } from "../app";
-import { get } from "http";
+import bcrypt from 'bcrypt';
+
+import { Prisma } from '@prisma/client';
+import { prisma as db } from '../app';
 
 /**
  * CRUD resurso valdymas
@@ -18,215 +19,192 @@ import { get } from "http";
  * destroy(id)- /api/v1/users/:id        - DELETE    - vieno vartotojo ištrynimas
  */
 
+// -- // -- // -- // -- //
 
-// vartotojų sąrašo valdiklis (kontroleris)
-const getAllUsers = async (req: Request, res: Response) => {
+async function getAllUsers(_: unknown, res: Response) {
   try {
-    const users = await prisma.user.findMany();
+    const users = await db.user.findMany(
+      {
+        select: { password: false }
+      }
+    );
+
     res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({
-      error: { status: 500, messages: "Serverio klaida" }
-    });
-  }
+  } catch {
+    res.status(500).json('Serverio klaida');
+  };
 };
 
-const getOneUser = async (req: Request, res: Response) => {
+async function getUser(req: Request, res: Response) {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: Number(req.params.id) },
-      select: {
-        id: true,
-        email: true,
-        status: true,
-        role: true,
-      },
-    });
+    const user = await db.user.findUnique(
+      {
+        where: { id: Number(req.params.id) },
+        select: { password: false }
+      }
+    );
+
+    if (!user) return res.status(404).json('Vartotojas nerastas');
+
     res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ 
-      error: { status: 500, messages: "Serverio klaida" }
-    });
-  }
+  } catch {
+    res.status(500).json('Serverio klaida');
+  };
 };
+
+async function deleteUser(req: Request, res: Response) {
+  try {
+    const user = await db.user.findUnique(
+      {
+        where: { id: Number(req.params.id) }
+      }
+    );
+
+    if (!user) return res.status(404).json('Vartotojas nerastas');
+
+    //
+
+    const result = await db.user.delete(
+      {
+        where: { id: user.id }
+      }
+    );
+
+    if (!result) return res.status(500).json('Serverio klaida');
+
+    res.status(200).json('Vartotojas ištrintas');
+  } catch {
+    res.status(500).json('Serverio klaida');
+  };
+};
+
+async function updateUser(req: Request, res: Response) {
+  try {
+    const user = await db.user.findUnique(
+      {
+        where: { id: Number(req.params.id) }
+      }
+    );
+
+    if (!user) return res.status(404).json('Vartotojas nerastas');
+
+    //
+
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) return res.status(400).json(validation.array());
+
+    const data = matchedData(req);
+
+    //
+
+    const email = await db.user.findUnique(
+      {
+        where: { email: data.email },
+      }
+    );
+
+    if (email && email.email !== user.email) return res.status(400).json('Toks el. pašto adresas jau egzistuoja');
+
+    if (data.password) data.password = await bcrypt.hash(data.password, 10);
+
+    //
+
+    const result = await db.user.update(
+      {
+        where: { id: user.id },
+        data: data,
+      }
+    );
+
+    if (!result) return res.status(500).json('Serverio klaida');
+
+    res.status(200).json('Vartotojas atnaujintas');
+  } catch {
+    res.status(500).json('Serverio klaida');
+  };
+};
+
+async function storeUser(req: Request, res: Response) {
+  try {
+    const validation = validationResult(req);
+
+    if (!validation.isEmpty()) return res.status(400).json(validation.array());
+
+    const data: Prisma.UserCreateInput = matchedData(req);
+
+    //
+
+    let user = await db.user.findUnique(
+      {
+        where: { email: data.email },
+      }
+    );
+
+    if (user) return res.status(400).json('Toks el. pašto adresas jau egzistuoja');
+
+    data.password = await bcrypt.hash(data.password, 10);
+
+    //
+
+    user = await db.user.create({ data: data });
+
+    if (!user) return res.status(500).json('Serverio klaida');
+
+    res.status(201).json(
+      {
+        message: 'Vartotojas sukurtas',
+        id: user.id
+      }
+    );
+  } catch {
+    res.status(500).json('Serverio klaida');
+  };
+};
+
+// -- // -- // -- // -- //
 
 const validateStore = () => [
-  body("email")
+  body('email')
     .trim()
     .notEmpty()
-    .withMessage("El. pašto adresas privalomas")
+    .withMessage('El. pašto adresas privalomas')
     .escape()
     .isEmail()
-    .withMessage("Neteisingas vartotjo el. pašto adresas"),
-  body("password")
+    .withMessage('Neteisingas vartotjo el. pašto adresas'),
+  body('password')
     .trim()
     .notEmpty()
-    .withMessage("Neteisingas slaptažodis")
+    .withMessage('Neteisingas slaptažodis')
     .escape(),
 ];
 
-const store = async (req: Request, res: Response | any, next: NextFunction) => {
-  // iš užklausos surenkame ir validuojame duomenis
-  const validation = validationResult(req);
-
-  // klaidos validuojant duomenis
-  if (!validation.isEmpty()) {
-    return res.status(400).json({
-      error: { status: 400, messages: validation.errors },
-    });
-  }
-
-  // gauname validuotus duomenis
-  const data = matchedData(req);
-
-  // tikriname ar laisvas el. paštas
-  let user = await prisma.user.findFirst({
-    where: { email: data.email },
-  });
-
-  if (user) {
-    // el. paštas jau egzistuoja
-    return res.status(400).json({
-      error: { status: 400, messages: "Toks el. pašto adresas jau egzistuoja" },
-    });
-  }
-
-  // šifruojame slaptažodį
-  data.password = await bcrypt.hash(data.password, 10);
-
-  // siunčiame į DB per modelį
-  user = await prisma.user.create({ data });
-
-  if (!user) {
-    return res.status(500).json({
-      error: { status: 500, messages: "Serverio klaida" },
-    });
-  }
-
-  return res.status(201).json({
-    status: "success",
-    id: user.id,
-    messages: "Sukurtas naujas vartotojas",
-  });
-};
-
 const validateUpdate = () => [
-  body("email")
+  body('email')
     .trim()
     .notEmpty()
-    .withMessage("El. pašto adresas privalomas")
+    .withMessage('El. pašto adresas privalomas')
     .escape()
     .isEmail()
-    .withMessage("Neteisingas vartotjo el. pašto adresas"),
-  body("password").trim().optional().escape(),
-  body("status")
+    .withMessage('Neteisingas vartotjo el. pašto adresas'),
+  body('password').trim().optional().escape(),
+  body('status')
     .trim()
     .escape()
     .isInt()
-    .withMessage("Būsenos numeris privalomas"),
-  body("role").trim().escape().isInt().withMessage("Rolės numeris privalomas"),
+    .withMessage('Būsenos numeris privalomas'),
+  body('role').trim().escape().isInt().withMessage('Rolės numeris privalomas'),
 ];
 
-// vartotojo informacijos keitimas
-const update = async (req: Request, res: Response | any, next: NextFunction) => {
-  const user = await prisma.user.findFirst({
-    where: { id: Number(req.params.id) },
-  });
-  
-  // jei vartotojo nėra DB
-  if (!user) {
-    return res.status(404).json({
-      error: { status: 404, messages: "Vartotojo nėra" },
-    });
-  }
-
-  // validacija
-  // iš užklausos surenkame ir validuojame duomenis
-  const validation = validationResult(req);
-
-  // klaidos validuojant duomenis
-  if (!validation.isEmpty()) {
-    return res.status(400).json({
-      error: { status: 400, messages: validation.errors },
-    });
-  }
-
-  // gauname validuotus duomenis
-  const data = matchedData(req);
-
-  // tikriname el. paštą
-  const user_for_email = await prisma.user.findFirst({
-    where: { email: data.email },
-  });
-  
-  if (user_for_email && user_for_email.email != user.email) {
-    return res.status(400).json({
-      error: { status: 400, messages: "Toks el. pašto adresas jau egzistuoja" },
-    });
-  }
-
-  // slaptažodžių keitimas, jei gautas
-  if (data.password) {
-    // šifruojame slaptažodį
-    data.password = await bcrypt.hash(data.password, 10);
-  } else {
-    // pašaliname slaptažodių parametrus, jei buvo tušti
-    delete data.password;
-  }
-
-  // siunčiame į DB per modelį
-  const result = await prisma.user.update({
-    where: { id: user.id },
-    data,
-  });
-
-  if (!result) {
-    return res.status(500).json({
-      error: { status: 500, messages: "Serverio klaida" },
-    });
-  }
-
-  return res.status(200).json({
-    status: "success",
-    messages: "Atnaujinti vartotojo duomenys",
-  });
-};
-
-// vartotojo trynimo kontroleris
-const destroy = async (req: Request, res: Response | any, next: NextFunction) => {
-  const user = await prisma.user.findFirst({
-    where: { id: Number(req.params.id) },
-  });
-  
-  // jei vartotojo nėra DB
-  if (!user) {
-    return res.status(404).json({
-      error: { status: 404, messages: "Vartotojo nėra" },
-    });
-  }
-
-  const result = await prisma.user.delete({
-    where: { id: user.id },
-  });
-  
-  if (!result) {
-    return res.status(500).json({
-      error: { status: 500, messages: "Serverio klaida" },
-    });
-  }
-
-  return res.status(200).json({
-    status: "success",
-    messages: "Vartotojas ištrintas",
-  });
-};
+// -- // -- // -- // -- //
 
 export default {
   getAllUsers,
-  getOneUser,
+  getUser,
+  deleteUser,
+  updateUser,
+  storeUser,
+
   validateStore,
-  store,
-  validateUpdate,
-  update,
-  destroy,
+  validateUpdate
 };
