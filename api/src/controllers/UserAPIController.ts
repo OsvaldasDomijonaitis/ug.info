@@ -44,7 +44,11 @@ async function getUser(req: Request, res: Response) {
       }
     );
 
-    if (!user) return res.status(404).json('Vartotojas nerastas');
+    if (!user) {
+      res.status(404).json('Vartotojas nerastas');
+
+      return;
+    };
 
     res.status(200).json(user);
   } catch {
@@ -60,7 +64,11 @@ async function deleteUser(req: Request, res: Response) {
       }
     );
 
-    if (!user) return res.status(404).json('Vartotojas nerastas');
+    if (!user) {
+      res.status(404).json('Vartotojas nerastas');
+      
+      return;
+    };
 
     //
 
@@ -70,7 +78,11 @@ async function deleteUser(req: Request, res: Response) {
       }
     );
 
-    if (!result) return res.status(500).json('Serverio klaida');
+    if (!result) {
+      res.status(500).json('Serverio klaida');
+      
+      return;
+    };
 
     res.status(200).json('Vartotojas ištrintas');
   } catch {
@@ -86,13 +98,21 @@ async function updateUser(req: Request, res: Response) {
       }
     );
 
-    if (!user) return res.status(404).json('Vartotojas nerastas');
+    if (!user) {
+      res.status(404).json('Vartotojas nerastas');
+      
+      return;
+    };
 
     //
 
     const validation = validationResult(req);
 
-    if (!validation.isEmpty()) return res.status(400).json(validation.array());
+    if (!validation.isEmpty()) {
+      res.status(400).json(validation.array());
+
+      return;
+    };
 
     const data = matchedData(req);
 
@@ -104,7 +124,11 @@ async function updateUser(req: Request, res: Response) {
       }
     );
 
-    if (email && email.email !== user.email) return res.status(400).json('Toks el. pašto adresas jau egzistuoja');
+    if (email && email.email !== user.email) {
+      res.status(400).json('Toks el. pašto adresas jau egzistuoja');
+      
+      return;
+    };
 
     if (data.password) data.password = await bcrypt.hash(data.password, 10);
 
@@ -117,7 +141,11 @@ async function updateUser(req: Request, res: Response) {
       }
     );
 
-    if (!result) return res.status(500).json('Serverio klaida');
+    if (!result) {
+      res.status(500).json('Serverio klaida');
+      
+      return;
+    };
 
     res.status(200).json('Vartotojas atnaujintas');
   } catch {
@@ -129,7 +157,11 @@ async function storeUser(req: Request, res: Response) {
   try {
     const validation = validationResult(req);
 
-    if (!validation.isEmpty()) return res.status(400).json(validation.array());
+    if (!validation.isEmpty()) {
+      res.status(400).json(validation.array());
+      
+      return;
+    };
 
     const data: Prisma.UserCreateInput = matchedData(req);
 
@@ -141,7 +173,11 @@ async function storeUser(req: Request, res: Response) {
       }
     );
 
-    if (user) return res.status(400).json('Toks el. pašto adresas jau egzistuoja');
+    if (user) {
+      res.status(400).json('Toks el. pašto adresas jau egzistuoja');
+
+      return;
+    };
 
     data.password = await bcrypt.hash(data.password, 10);
 
@@ -149,7 +185,11 @@ async function storeUser(req: Request, res: Response) {
 
     user = await db.user.create({ data: data });
 
-    if (!user) return res.status(500).json('Serverio klaida');
+    if (!user) {
+      res.status(500).json('Serverio klaida');
+
+      return;
+    };
 
     res.status(201).json(
       {
@@ -176,7 +216,7 @@ const validateStore = () => [
     .trim()
     .notEmpty()
     .withMessage('Neteisingas slaptažodis')
-    .escape(),
+    .escape()
 ];
 
 const validateUpdate = () => [
@@ -193,7 +233,7 @@ const validateUpdate = () => [
     .escape()
     .isInt()
     .withMessage('Būsenos numeris privalomas'),
-  body('role').trim().escape().isInt().withMessage('Rolės numeris privalomas'),
+  body('role').trim().escape().isInt().withMessage('Rolės numeris privalomas')
 ];
 
 // -- // -- // -- // -- //
