@@ -6,18 +6,10 @@ import bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { prisma as db } from '../app';
 
-/**
- * CRUD resurso valdymas
- * CREATE
- * store()    - /api/v1/users/           - POST      - sukuria naują vartotoją
- * READ
- * index()    - /api/v1/users/           - GET       - visų vartotojų sąrašas
- * show(id)   - /api/v1/users/:id        - GET       - vieno vartotojo informacija
- * UPDATE
- * update(id) - /api/v1/users/:id        - PUT/PATCH - vieno vartotojo duomenų atnaujinimas
- * DELETE
- * destroy(id)- /api/v1/users/:id        - DELETE    - vieno vartotojo ištrynimas
- */
+// GET: /user/all, /user/:id
+// POST: /user/all
+// PUT: /user/:id
+// DELETE: /user/:id
 
 // -- // -- // -- // -- //
 
@@ -37,7 +29,7 @@ async function getAllUsers(_: unknown, res: Response) {
 
 async function getUser(req: Request, res: Response) {
   try {
-    const user = await db.user.findUnique(
+    const user = await db.user.findFirst(
       {
         where: { id: Number(req.params.id) },
         select: { password: false }
@@ -58,7 +50,7 @@ async function getUser(req: Request, res: Response) {
 
 async function deleteUser(req: Request, res: Response) {
   try {
-    const user = await db.user.findUnique(
+    const user = await db.user.findFirst(
       {
         where: { id: Number(req.params.id) }
       }
@@ -92,7 +84,7 @@ async function deleteUser(req: Request, res: Response) {
 
 async function updateUser(req: Request, res: Response) {
   try {
-    const user = await db.user.findUnique(
+    const user = await db.user.findFirst(
       {
         where: { id: Number(req.params.id) }
       }
@@ -118,7 +110,7 @@ async function updateUser(req: Request, res: Response) {
 
     //
 
-    const email = await db.user.findUnique(
+    const email = await db.user.findFirst(
       {
         where: { email: data.email },
       }
@@ -163,13 +155,13 @@ async function storeUser(req: Request, res: Response) {
       return;
     };
 
-    const data: Prisma.UserCreateInput = matchedData(req);
+    const reqData: Prisma.UserCreateInput = matchedData(req);
 
     //
 
-    let user = await db.user.findUnique(
+    let user = await db.user.findFirst(
       {
-        where: { email: data.email },
+        where: { email: reqData.email },
       }
     );
 
@@ -179,11 +171,11 @@ async function storeUser(req: Request, res: Response) {
       return;
     };
 
-    data.password = await bcrypt.hash(data.password, 10);
+    reqData.password = await bcrypt.hash(reqData.password, 10);
 
     //
 
-    user = await db.user.create({ data: data });
+    user = await db.user.create({ data: reqData });
 
     if (!user) {
       res.status(500).json('Serverio klaida');
@@ -211,7 +203,7 @@ const validateStore = () => [
     .withMessage('El. pašto adresas privalomas')
     .escape()
     .isEmail()
-    .withMessage('Neteisingas vartotjo el. pašto adresas'),
+    .withMessage('Neteisingas vartotojo el. pašto adresas'),
   body('password')
     .trim()
     .notEmpty()
@@ -226,7 +218,7 @@ const validateUpdate = () => [
     .withMessage('El. pašto adresas privalomas')
     .escape()
     .isEmail()
-    .withMessage('Neteisingas vartotjo el. pašto adresas'),
+    .withMessage('Neteisingas vartotojo el. pašto adresas'),
   body('password').trim().optional().escape(),
   body('status')
     .trim()
