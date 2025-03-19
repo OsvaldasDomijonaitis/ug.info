@@ -26,6 +26,8 @@ async function login(req: Request, res: Response) {
     return;
   };
 
+  //
+
   const reqData = matchedData(req);
 
   const user = await db.user.findFirst(
@@ -39,6 +41,8 @@ async function login(req: Request, res: Response) {
 
     return;
   };
+
+  //
 
   if (!await bcrypt.compare(reqData.password, user.password)) {
 
