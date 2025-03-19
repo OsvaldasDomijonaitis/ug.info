@@ -1,30 +1,14 @@
-import express from "express";
-var router = express.Router();
+import express from 'express';
 
-import { body } from "express-validator";
+const router = express.Router();
 
-import AuthAPIController from "../controllers/AuthAPIController";
-import UserAPIController from "../controllers/UserAPIController";
+import authController from '../controllers/AuthAPIController';
+import userController from '../controllers/UserAPIController';
 
-router.post(
-  "/login",
-  [
-    body("email")
-      .trim()
-      .notEmpty()
-      .withMessage("El. pašto adresas privalomas")
-      .escape()
-      .isEmail()
-      .withMessage("Neteisingas vartotjo el. pašto adresas"),
-    body("password")
-      .trim()
-      .notEmpty()
-      .withMessage("Slaptažodis yra privalomas")
-      .escape(),
-  ],
-  AuthAPIController.login
-);
+// -- // -- // -- // -- //
 
-router.post("/register", UserAPIController.validateStore(), UserAPIController.store);
+router.post('/register', userController.validateStore(), userController.storeUser);
+
+router.post('/login', authController.validateLogin(), authController.login);
 
 export default router;
