@@ -21,13 +21,13 @@ export function Auth() {
       icon: UserIcon,
     },
     {
-      name: "sign up",
-      path: "/auth/sign-up",
+      name: "Register",
+      path: "/auth/register",
       icon: UserPlusIcon,
     },
     {
-      name: "sign in",
-      path: "/auth/sign-in",
+      name: "Login",
+      path: "/auth/login",
       icon: ArrowRightOnRectangleIcon,
     },
   ];
