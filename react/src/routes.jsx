@@ -55,14 +55,14 @@ export const routes = [
     pages: [
       {
         icon: <ServerStackIcon {...icon} />,
-        name: "sign in",
-        path: "/sign-in",
+        name: "login",
+        path: "/login",
         element: <SignIn />,
       },
       {
         icon: <RectangleStackIcon {...icon} />,
-        name: "sign up",
-        path: "/sign-up",
+        name: "register",
+        path: "/register",
         element: <SignUp />,
       },
     ],
