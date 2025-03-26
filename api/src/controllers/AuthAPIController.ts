@@ -17,7 +17,7 @@ const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET ?? '';
 
 // -- // -- // -- // -- //
 
-async function login(req: Request, res: Response) {
+async function login (req: Request, res: Response) {
   const validation = validationResult(req);
 
   if (!validation.isEmpty()) {
