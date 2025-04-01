@@ -1,10 +1,10 @@
-import express from "express";
+import express from 'express';
+import userRouter from './userAPI';
+
 const router = express.Router();
 
-// import clientsAPIRouter from "./clientsAPI";
-import usersAPIRouter from "./userAPI";
+// -- // -- // -- // -- //
 
-// router.use("/clients", clientsAPIRouter);
-router.use("/users", usersAPIRouter);
+router.use('/users/', userRouter);
 
 export default router;

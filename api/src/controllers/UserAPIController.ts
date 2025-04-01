@@ -4,7 +4,7 @@ import { body, validationResult, matchedData } from 'express-validator';
 import bcrypt from 'bcrypt';
 
 import { Prisma } from '@prisma/client';
-import { prisma as db } from '../app';
+import prismaDb from '../app';
 
 // GET: /user/all, /user/:id
 // POST: /user/all
@@ -15,21 +15,21 @@ import { prisma as db } from '../app';
 
 async function getAllUsers(_: unknown, res: Response) {
   try {
-    const users = await db.user.findMany(
+    const users = await prismaDb.user.findMany(
       {
         select: { password: false }
       }
     );
 
     res.status(200).json(users);
-  } catch {
-    res.status(500).json('Serverio klaida');
+  } catch (err) {
+    res.status(500).json(err); // 'Serverio klaida'
   };
 };
 
 async function getUser(req: Request, res: Response) {
   try {
-    const user = await db.user.findFirst(
+    const user = await prismaDb.user.findFirst(
       {
         where: { id: Number(req.params.id) },
         select: { password: false }
@@ -50,7 +50,7 @@ async function getUser(req: Request, res: Response) {
 
 async function deleteUser(req: Request, res: Response) {
   try {
-    const user = await db.user.findFirst(
+    const user = await prismaDb.user.findFirst(
       {
         where: { id: Number(req.params.id) }
       }
@@ -64,7 +64,7 @@ async function deleteUser(req: Request, res: Response) {
 
     //
 
-    const result = await db.user.delete(
+    const result = await prismaDb.user.delete(
       {
         where: { id: user.id }
       }
@@ -84,7 +84,7 @@ async function deleteUser(req: Request, res: Response) {
 
 async function updateUser(req: Request, res: Response) {
   try {
-    const user = await db.user.findFirst(
+    const user = await prismaDb.user.findFirst(
       {
         where: { id: Number(req.params.id) }
       }
@@ -110,7 +110,7 @@ async function updateUser(req: Request, res: Response) {
 
     //
 
-    const email = await db.user.findFirst(
+    const email = await prismaDb.user.findFirst(
       {
         where: { email: data.email },
       }
@@ -126,7 +126,7 @@ async function updateUser(req: Request, res: Response) {
 
     //
 
-    const result = await db.user.update(
+    const result = await prismaDb.user.update(
       {
         where: { id: user.id },
         data: data,
@@ -159,7 +159,7 @@ async function storeUser(req: Request, res: Response) {
 
     //
 
-    let user = await db.user.findFirst(
+    let user = await prismaDb.user.findFirst(
       {
         where: { email: reqData.email },
       }
@@ -175,7 +175,7 @@ async function storeUser(req: Request, res: Response) {
 
     //
 
-    user = await db.user.create({ data: reqData });
+    user = await prismaDb.user.create({ data: reqData });
 
     if (!user) {
       res.status(500).json('Serverio klaida');
@@ -200,14 +200,14 @@ const validateStore = () => [
   body('email')
     .trim()
     .notEmpty()
-    .withMessage('El. pašto adresas privalomas')
+    .withMessage('El. pašto adresas yra privalomas')
     .escape()
     .isEmail()
     .withMessage('Neteisingas vartotojo el. pašto adresas'),
   body('password')
     .trim()
     .notEmpty()
-    .withMessage('Neteisingas slaptažodis')
+    .withMessage('Slaptažodis yra privalomas')
     .escape()
 ];
 
@@ -215,7 +215,7 @@ const validateUpdate = () => [
   body('email')
     .trim()
     .notEmpty()
-    .withMessage('El. pašto adresas privalomas')
+    .withMessage('El. pašto adresas yra privalomas')
     .escape()
     .isEmail()
     .withMessage('Neteisingas vartotojo el. pašto adresas'),
@@ -224,8 +224,8 @@ const validateUpdate = () => [
     .trim()
     .escape()
     .isInt()
-    .withMessage('Būsenos numeris privalomas'),
-  body('role').trim().escape().isInt().withMessage('Rolės numeris privalomas')
+    .withMessage('Būsenos numeris yra privalomas'),
+  body('role').trim().escape().isInt().withMessage('Rolės numeris yra privalomas')
 ];
 
 // -- // -- // -- // -- //
