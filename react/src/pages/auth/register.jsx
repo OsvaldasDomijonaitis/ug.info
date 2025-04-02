@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 
-export function SignUp() {
+export function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -160,4 +160,4 @@ export function SignUp() {
   );
 }
 
-export default SignUp;
+export default Register;
