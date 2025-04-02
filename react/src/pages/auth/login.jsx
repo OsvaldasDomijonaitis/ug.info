@@ -5,12 +5,13 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import UserContext from "@/UserContext";
 
 
 export function Login() {
+  const [user, setUser, token, setToken] = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -59,6 +60,8 @@ export function Login() {
       console.log(data.user);
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("user", JSON.stringify(data.user));
+      setToken(data.token);
+      setUser(data.user);
       console.log("Prisijungta");
       setTimeout(() => {
         navigateToProfile();

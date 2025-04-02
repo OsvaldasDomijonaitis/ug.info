@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Navbar,
   Collapse,
@@ -28,6 +28,7 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/solid";
 import { Link, useNavigate } from "react-router-dom";
+import UserContext from "@/UserContext";
  
 const navListMenuItems = [
   {
@@ -163,16 +164,13 @@ export function MeniuFront() {
 
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const session_user = JSON.parse(sessionStorage.getItem("user"));
-  //   if (session_user) {
-  //     setUser(session_user);
-  //   }
-  // }, [user]);
+  const [user, setUser, token, setToken] = useContext(UserContext);
 
   const handleLogout = () => {
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("token");
+    setUser({});
+    setToken("");
     navigate("/");
   }
   

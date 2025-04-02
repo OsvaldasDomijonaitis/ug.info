@@ -21,22 +21,28 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { ProfileInfoCard, MessageCard } from "@/widgets/cards";
 import { platformSettingsData, conversationsData, projectsData } from "@/data";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import UserContext from "@/UserContext";
 // import { DialogDefault } from "@/widgets/dialogs/dialog-default";
 
+const empty = obj => {
+  if (!obj) return true;
+  if (Boolean(obj) === false) return true;
+  return Object.keys(obj).length === 0;
+};
+
 export function Profile() {
-  const [user, setUser] = useState({});
+  const [user, setUser, token, setToken] = useContext(UserContext);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    if (!user) {
+    // console.log("user", user, empty(user));
+    if (empty(user)) {
       navigate("/auth/login");
       return;
     }
-    setUser(user);
-  }, [user]);
+  });
 
   return (
     <>
@@ -62,7 +68,7 @@ export function Profile() {
                   variant="small"
                   className="font-normal text-blue-gray-600"
                 >
-                  {user.email ?? "-" }
+                  {!empty(user) ? user.email : "-" }
                 </Typography>
               </div>
             </div>
