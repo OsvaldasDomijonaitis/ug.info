@@ -9,13 +9,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 
-export function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
+export function Login() {
+  const [email, checkEmail] = useState("");
+  const [password, checkPassword] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Prisijungimas apdorojama");
+    console.log("prisijungimo apdorojimas");
 
     // {
     //   "email": "varyt@gmail.com",
@@ -36,7 +37,7 @@ export function SignIn() {
     const data = await response.json();
     console.log(data);
   }
-  
+
   return (
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
@@ -58,7 +59,7 @@ export function SignIn() {
               }}
               value={email}
               onChange={(e) => {
-                setEmail(e.target.value);
+                checkEmail(e.target.value);
               }}
             />
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
@@ -74,7 +75,7 @@ export function SignIn() {
               }}
               value={password}
               onChange={(e) => {
-                setPassword(e.target.value);
+              checkPassword(e.target.value);
               }}
             />
           </div>
@@ -125,4 +126,4 @@ export function SignIn() {
   );
 }
 
-export default SignIn;
+export default Login;
