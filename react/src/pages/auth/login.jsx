@@ -5,10 +5,44 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 
 export function SignIn() {
+  const [email, checkEmail] = useState("");
+  const [password, checkPassword] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log("prisijungimo apdorojimas");
+
+    // {
+    //   "email": "varyt@gmail.com",
+    //   "password": "sssss"
+    // }
+
+    // http://localhost/login
+
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    console.log(response);
+    const data = await response.json();
+    console.log(data);
+  }
+
+
+
+
+
+
+
   return (
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
@@ -16,7 +50,7 @@ export function SignIn() {
           <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>
           <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to Sign In.</Typography>
         </div>
-        <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
+        <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2" onSubmit={handleSubmit}>
           <div className="mb-1 flex flex-col gap-6">
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Your email
@@ -27,6 +61,10 @@ export function SignIn() {
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
+              }}
+              value={email}
+              onChange={(e) => {
+                checkEmail(e.target.value);
               }}
             />
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
@@ -39,6 +77,10 @@ export function SignIn() {
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
+              }}
+              value={password}
+              onChange={(e) => {
+              checkPassword(e.target.value);
               }}
             />
           </div>
@@ -60,7 +102,7 @@ export function SignIn() {
             }
             containerProps={{ className: "-ml-2.5" }}
           />
-          <Button className="mt-6" fullWidth>
+          <Button className="mt-6" fullWidth type="submit">
             Sign In
           </Button>
 
