@@ -5,14 +5,36 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import UserContext from "@/UserContext";
 
 
 export function Login() {
-  const [email, checkEmail] = useState("");
-  const [password, checkPassword] = useState("");
+  const [user, setUser, token, setToken] = useContext(UserContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
+
+  const navigateToProfile = () => {
+    navigate("/profile");
+  } 
+
+  const empty = obj => {
+    if (!obj) return true;
+    if (Boolean(obj) === false) return true;
+    return Object.keys(obj).length === 0;
+  };
+  
+
+  useEffect(() => {
+    // console.log("user", user, empty(user));
+    if (!empty(user)) {
+      navigateToProfile();
+      return;
+    }
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -32,18 +54,60 @@ export function Login() {
       },
       body: JSON.stringify({ email, password }),
     });
-    
-    console.log(response);
+    if (response.status == "401") {
+      console.log("Neteisingi prisijungimo duomenys");
+      return;
+    }
+    if (!response.ok) {
+      console.log("Nepavyko prisijungti");
+      return;
+    }
+    // console.log(response);
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
+    if (response.status == "400") {
+      console.log(data.msg);
+      return;
+    }
+
+    if (Boolean(data.token) && Boolean(data.user)) {
+      console.log(data.token);
+      console.log(data.user);
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+      setToken(data.token);
+      setUser(data.user);
+      console.log("Prisijungta");
+      setTimeout(() => {
+        navigateToProfile();
+      }, 1000);
+    } else {
+      console.log("Nepavyko prisijungti");
+    }
+  }
+
+  const handleUser = () => {
+    setEmail("user@example.com");
+    setPassword("password"); 
+  }
+  const handleAdmin = () => {
+    setEmail("admin@example.com");
+    setPassword("password"); 
   }
 
   return (
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
         <div className="text-center">
+          <Link to="/">
+            <Typography variant="h2" className="font-bold mb-4">UG info</Typography>
+          </Link>
           <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>
           <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to Sign In.</Typography>
+          <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">
+            <Button size="sm" variant="text" className="mx-1" onClick={handleUser}>User</Button>
+            <Button size="sm" variant="text" className="mx-1" onClick={handleAdmin}>Admin</Button>
+          </Typography>
         </div>
         <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2" onSubmit={handleSubmit}>
           <div className="mb-1 flex flex-col gap-6">
@@ -59,7 +123,7 @@ export function Login() {
               }}
               value={email}
               onChange={(e) => {
-                checkEmail(e.target.value);
+                setEmail(e.target.value);
               }}
             />
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
@@ -75,7 +139,7 @@ export function Login() {
               }}
               value={password}
               onChange={(e) => {
-              checkPassword(e.target.value);
+              setPassword(e.target.value);
               }}
             />
           </div>
