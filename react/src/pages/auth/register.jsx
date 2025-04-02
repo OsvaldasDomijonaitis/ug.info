@@ -47,6 +47,9 @@ export function Register() {
       </div>
       <div className="w-full lg:w-3/5 flex flex-col items-center justify-center">
         <div className="text-center">
+          <Link to="/">
+            <Typography variant="h2" className="font-bold mb-4">UG info</Typography>
+          </Link>
           <Typography variant="h2" className="font-bold mb-4">Join Us Today</Typography>
           <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to register.</Typography>
         </div>

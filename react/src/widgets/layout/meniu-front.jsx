@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Navbar,
   Collapse,
@@ -27,7 +27,7 @@ import {
   TagIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
  
 const navListMenuItems = [
   {
@@ -156,67 +156,94 @@ function NavListMenu() {
   );
 }
  
-function NavList() {
-  return (
-    <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
-      <Link to="/">
-        <Typography
-          as="a"
-          variant="small"
-          color="blue-gray"
-          className="font-medium"
-        >
-          <ListItem className="flex items-center gap-2 py-2 pr-4">Home</ListItem>
-        </Typography>
-      </Link>
-      <Link to="/profile">
-        <Typography
-          as="a"
-          variant="small"
-          color="blue-gray"
-          className="font-medium"
-        >
-          <ListItem className="flex items-center gap-2 py-2 pr-4">Profile</ListItem>
-        </Typography>
-      </Link>
-      <Link to="/auth/login">
-        <Typography
-          as="a"
-          variant="small"
-          color="blue-gray"
-          className="font-medium"
-        >
-          <ListItem className="flex items-center gap-2 py-2 pr-4">
-            Login
-          </ListItem>
-        </Typography>
-      </Link>
-      <Link to="/auth/register">
-        <Typography
-          as="a"
-          variant="small"
-          color="blue-gray"
-          className="font-medium"
-        >
-          <ListItem className="flex items-center gap-2 py-2 pr-4">
-            Register
-          </ListItem>
-        </Typography>
-      </Link>
-    </List>
-  );
-}
- 
 export function MeniuFront() {
-  const [openNav, setOpenNav] = React.useState(false);
- 
-  React.useEffect(() => {
+  const [openNav, setOpenNav] = useState(false);
+
+  // const [user, setUser] = useState({});
+
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   const session_user = JSON.parse(sessionStorage.getItem("user"));
+  //   if (session_user) {
+  //     setUser(session_user);
+  //   }
+  // }, [user]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    navigate("/");
+  }
+  
+  useEffect(() => {
     window.addEventListener(
       "resize",
       () => window.innerWidth >= 960 && setOpenNav(false),
     );
   }, []);
- 
+
+  const NavList = () => {
+    return (
+      <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
+        <Link to="/">
+          <Typography
+            as="a"
+            variant="small"
+            color="blue-gray"
+            className="font-medium"
+          >
+            <ListItem className="flex items-center gap-2 py-2 pr-4">Home</ListItem>
+          </Typography>
+        </Link>
+        <Link to="/profile">
+          <Typography
+            as="a"
+            variant="small"
+            color="blue-gray"
+            className="font-medium"
+          >
+            <ListItem className="flex items-center gap-2 py-2 pr-4">Profile</ListItem>
+          </Typography>
+        </Link>
+        <Link to="/auth/login">
+          <Typography
+            as="a"
+            variant="small"
+            color="blue-gray"
+            className="font-medium"
+          >
+            <ListItem className="flex items-center gap-2 py-2 pr-4">
+              Login
+            </ListItem>
+          </Typography>
+        </Link>
+        <Link to="/auth/register">
+          <Typography
+            as="a"
+            variant="small"
+            color="blue-gray"
+            className="font-medium"
+          >
+            <ListItem className="flex items-center gap-2 py-2 pr-4">
+              Register
+            </ListItem>
+          </Typography>
+        </Link>
+          <Typography
+            as="a"
+            variant="small"
+            color="blue-gray"
+            className="font-medium"
+          >
+            <ListItem className="flex items-center gap-2 py-2 pr-4" onClick={handleLogout}>
+              Log Out
+            </ListItem>
+          </Typography>
+      </List>
+    );
+  }
+   
   return (
     <Navbar className="mx-auto max-w-screen-xl px-4 py-2">
       <div className="flex items-center justify-between text-blue-gray-900">

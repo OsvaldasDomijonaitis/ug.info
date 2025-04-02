@@ -81,6 +81,9 @@ export function Login() {
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
         <div className="text-center">
+          <Link to="/">
+            <Typography variant="h2" className="font-bold mb-4">UG info</Typography>
+          </Link>
           <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>
           <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to Sign In.</Typography>
           <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">
