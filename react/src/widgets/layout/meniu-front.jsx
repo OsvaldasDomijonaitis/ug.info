@@ -30,6 +30,12 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import UserContext from "@/UserContext";
  
+const empty = obj => {
+  if (!obj) return true;
+  if (Boolean(obj) === false) return true;
+  return Object.keys(obj).length === 0;
+};
+
 const navListMenuItems = [
   {
     title: "Products",
@@ -181,7 +187,7 @@ export function MeniuFront() {
     );
   }, []);
 
-  const NavList = () => {
+  const NavListGuest = () => {
     return (
       <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
         <Link to="/">
@@ -192,16 +198,6 @@ export function MeniuFront() {
             className="font-medium"
           >
             <ListItem className="flex items-center gap-2 py-2 pr-4">Home</ListItem>
-          </Typography>
-        </Link>
-        <Link to="/profile">
-          <Typography
-            as="a"
-            variant="small"
-            color="blue-gray"
-            className="font-medium"
-          >
-            <ListItem className="flex items-center gap-2 py-2 pr-4">Profile</ListItem>
           </Typography>
         </Link>
         <Link to="/auth/login">
@@ -228,20 +224,55 @@ export function MeniuFront() {
             </ListItem>
           </Typography>
         </Link>
+      </List>
+    );
+  }
+   
+
+  const NavListAuth = () => {
+    return (
+      <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
+        <Link to="/">
           <Typography
             as="a"
             variant="small"
             color="blue-gray"
             className="font-medium"
           >
-            <ListItem className="flex items-center gap-2 py-2 pr-4" onClick={handleLogout}>
-              Log Out
-            </ListItem>
+            <ListItem className="flex items-center gap-2 py-2 pr-4">Home</ListItem>
           </Typography>
+        </Link>
+        <Link to="/profile">
+          <Typography
+            as="a"
+            variant="small"
+            color="blue-gray"
+            className="font-medium"
+          >
+            <ListItem className="flex items-center gap-2 py-2 pr-4">Profile</ListItem>
+          </Typography>
+        </Link>
+        <Typography
+          as="a"
+          variant="small"
+          color="blue-gray"
+          className="font-medium"
+        >
+          <ListItem className="flex items-center gap-2 py-2 pr-4" onClick={handleLogout}>
+            Log Out
+          </ListItem>
+        </Typography>
       </List>
     );
   }
-   
+  const NavList = () => {
+    if (!empty(user)) {
+      return <NavListGuest />;
+    } else {
+      return <NavListAuth />;
+    }
+  } 
+
   return (
     <Navbar className="mx-auto max-w-screen-xl px-4 py-2">
       <div className="flex items-center justify-between text-blue-gray-900">
@@ -255,7 +286,7 @@ export function MeniuFront() {
           </Typography>
         </Link>
         <div className="hidden lg:block">
-          <NavList />
+          {empty(user) ? <NavListGuest /> : <NavListAuth />}
         </div>
         <IconButton
           variant="text"
@@ -271,7 +302,7 @@ export function MeniuFront() {
         </IconButton>
       </div>
       <Collapse open={openNav}>
-        <NavList />
+        {empty(user) ? <NavListGuest /> : <NavListAuth />}
       </Collapse>
     </Navbar>
   );

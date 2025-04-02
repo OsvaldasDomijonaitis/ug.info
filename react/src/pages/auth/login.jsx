@@ -5,7 +5,7 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import UserContext from "@/UserContext";
 
@@ -20,6 +20,21 @@ export function Login() {
   const navigateToProfile = () => {
     navigate("/profile");
   } 
+
+  const empty = obj => {
+    if (!obj) return true;
+    if (Boolean(obj) === false) return true;
+    return Object.keys(obj).length === 0;
+  };
+  
+
+  useEffect(() => {
+    // console.log("user", user, empty(user));
+    if (!empty(user)) {
+      navigateToProfile();
+      return;
+    }
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
