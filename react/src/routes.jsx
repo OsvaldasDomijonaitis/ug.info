@@ -15,6 +15,23 @@ const icon = {
 
 export const routes = [
   {
+    layout: "front",
+    pages: [
+      {
+        icon: <HomeIcon {...icon} />,
+        name: "dashboard",
+        path: "/",
+        element: <Home />,
+      },
+      {
+        icon: <UserCircleIcon {...icon} />,
+        name: "profile",
+        path: "/profile",
+        element: <Profile />,
+      },
+    ],
+  },
+  {
     layout: "dashboard",
     pages: [
       {
