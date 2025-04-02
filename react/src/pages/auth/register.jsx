@@ -15,7 +15,7 @@ export function Register() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("registracijos abdorojimas");
+    console.log("registracija abdorojima");
 
     // {
     //   "email": "varyt@gmail.com",
@@ -36,48 +36,6 @@ export function Register() {
     const data = await response.json();
     console.log(data);
   }
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   return (
     <section className="m-8 flex">
