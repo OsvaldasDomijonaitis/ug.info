@@ -11,10 +11,16 @@ import prismaDb from '../app';
 // visų renginių gavimas
 async function getAllEvents(_: Request, res: Response) {
     try {
-        res.status(200).json();
-      } catch {
+        const events = await prismaDb.event.findMany({
+            where: { status: 1 }, // aktyvūs renginiai
+            orderBy: { date: 'asc' },
+        });
+    
+        res.status(200).json(events);
+    } catch (err) {
+        console.error(err);
         res.status(500).json('Serverio klaida');
-      }
+    }
 }
 
 // vartojo renginių gavimas

@@ -6,10 +6,15 @@ const router = express.Router();
 // -- // -- // -- // -- //
 
 router.get('/', eventController.getAllEvents);
+
 router.get('/:id', eventController.getEvent);
+
 router.get('/user/:id', eventController.getUserEvents);
+
 router.post('/', eventController.validateStore(), eventController.storeEvent);
+
 router.put('/:id', eventController.validateUpdate(), eventController.updateEvent);
+
 router.delete('/:id', eventController.deleteEvent);
 
 export default router;
