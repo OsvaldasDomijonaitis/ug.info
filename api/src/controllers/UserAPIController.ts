@@ -6,11 +6,6 @@ import bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import prismaDb from '../app';
 
-// GET: /user/all, /user/:id
-// POST: /user/all
-// PUT: /user/:id
-// DELETE: /user/:id
-
 // -- // -- // -- // -- //
 
 async function getAllUsers(_: unknown, res: Response) {
@@ -23,7 +18,7 @@ async function getAllUsers(_: unknown, res: Response) {
 
     res.status(200).json(users);
   } catch (err) {
-    res.status(500).json(err); // 'Serverio klaida'
+    res.status(500).json('Serverio klaida');
   };
 };
 

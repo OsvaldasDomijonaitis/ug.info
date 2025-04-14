@@ -4,6 +4,8 @@ import userController from '../controllers/UserAPIController';
 
 const router = express.Router();
 
+// POST: /register, /login
+
 // -- // -- // -- // -- //
 
 router.post('/register', userController.validateStore(), userController.storeUser);

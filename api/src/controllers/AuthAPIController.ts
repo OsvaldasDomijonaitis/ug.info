@@ -13,8 +13,6 @@ import passport from '../passport';
 
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET ?? '';
 
-// POST: /register, /login
-
 // -- // -- // -- // -- //
 
 async function login(req: Request, res: Response) {
