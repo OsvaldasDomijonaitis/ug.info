@@ -36,16 +36,9 @@ async function getEvent(req: Request, res: Response) {
 }
 
 // naujo renginio sukūrimas
-async function createEvent(req: Request, res: Response) {
+async function storeEvent(req: Request, res: Response) {
     try {
-        const validation = validationResult(req);
-        if (!validation.isEmpty()) {
-          return res.status(400).json(validation.array());
-        }
-    
-        const data = matchedData(req);
-
-        res.status(201).json({ message: 'Renginys sukurtas' });
+        
     } catch {
         res.status(500).json('Serverio klaida');
     }
@@ -54,14 +47,7 @@ async function createEvent(req: Request, res: Response) {
 // renginio atnaujinimas
 async function updateEvent(req: Request, res: Response) {
     try {
-        const validation = validationResult(req);
-        if (!validation.isEmpty()) {
-        return res.status(400).json(validation.array());
-        }
-  
-        const data = matchedData(req);
-
-        res.status(200).json({ message: 'Renginys atnaujintas' });
+        
     } catch {
         res.status(500).json('Serverio klaida');
     }
@@ -92,7 +78,7 @@ export default {
     getAllEvents,
     getUserEvents,
     getEvent,
-    createEvent,
+    storeEvent,
     updateEvent,
     deleteEvent,
     validateStore,
