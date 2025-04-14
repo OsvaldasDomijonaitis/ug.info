@@ -5,16 +5,12 @@ const router = express.Router();
 
 // -- // -- // -- // -- //
 
-router.get('/', eventController.getAllEvents);
+router.get('/events', eventController.getAllEvents);
+router.get('/events/:id', eventController.getEvent);
+router.get('/user/:id/events', eventController.getUserEvents);
 
-router.get('/:id', eventController.getEvent);
-
-router.get('/user/:id', eventController.getUserEvents);
-
-router.post('/', eventController.validateStore(), eventController.storeEvent);
-
-router.put('/:id', eventController.validateUpdate(), eventController.updateEvent);
-
-router.delete('/:id', eventController.deleteEvent);
+router.post('/events', eventController.validateStore(), eventController.storeEvent);
+router.put('/events/:id', eventController.validateUpdate(), eventController.updateEvent);
+router.delete('/events/:id', eventController.deleteEvent);
 
 export default router;
