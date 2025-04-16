@@ -82,8 +82,11 @@ async function deleteEvent(req: Request, res: Response) {
 
 // validacija
 const validateStore = () => [
-    body('title').notEmpty().withMessage('Pavadinimas privalomas'),
-    body('date').notEmpty().withMessage('Data privaloma'),
+    body('name').trim().notEmpty().withMessage('Pavadinimas yra privalomas').escape(),
+    body('date').notEmpty().withMessage('Data yra privaloma').isDate().withMessage('Neteisinga data'),
+    body('place').trim().notEmpty().withMessage('Vieta yra privaloma').escape(),
+    body('description').trim().notEmpty().withMessage('Aprašymas yra privalomas').escape(),
+    body('img').trim().optional().isURL().withMessage('Neteisingas paveikslėlio URL')
 ];
 
 // atnaujinimo validacija
