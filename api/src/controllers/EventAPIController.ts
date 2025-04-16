@@ -103,7 +103,52 @@ async function storeEvent(req: Request, res: Response) {
 // renginio atnaujinimas
 async function updateEvent(req: Request, res: Response) {
     try {
-        
+        const event = await prismaDb.event.findFirst({
+            where: { id: Number(req.params.id) }
+        });
+      
+        if (!event) {
+            res.status(404).json('Renginys nerastas');
+            return;
+        }
+      
+        const validation = validationResult(req);
+        if (!validation.isEmpty()) {
+            res.status(400).json(validation.array());
+            return;
+        }
+      
+        const data = matchedData(req);
+
+        if (data.slug && data.slug !== event.slug) {
+            const slugExists = await prismaDb.event.findFirst({
+                where: { slug: data.slug }
+        });
+      
+            if (slugExists) {
+                res.status(400).json('Slug jau naudojamas kitam renginiui');
+                return;
+            }
+        }
+      
+        const updated = await prismaDb.event.update({
+            where: { id: event.id },
+            data: {
+                userId: Number(data.userId) || event.userId,
+                slug: data.slug || event.slug,
+                name: data.name || event.name,
+                date: data.date ? new Date(data.date) : event.date,
+                place: data.place || event.place,
+                description: data.description || event.description,
+                img: data.img ?? event.img,
+                status: typeof data.status !== 'undefined' ? Number(data.status) : event.status
+            }
+        });
+      
+        res.status(200).json({
+            message: 'Renginys atnaujintas',
+            id: updated.id
+        });
     } catch {
         res.status(500).json('Serverio klaida');
     }
