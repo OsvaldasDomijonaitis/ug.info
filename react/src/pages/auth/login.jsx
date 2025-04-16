@@ -101,12 +101,6 @@ export function Login() {
       orange: true,
       red: true,
     });
-    const [showAlertsWithIcon, setShowAlertsWithIcon] = useState({
-      blue: true,
-      green: true,
-      orange: true,
-      red: true,
-    });
 
   return (
     <section className="m-8 flex gap-4">
