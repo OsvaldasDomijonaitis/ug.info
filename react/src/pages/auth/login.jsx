@@ -4,11 +4,11 @@ import {
   Checkbox,
   Button,
   Typography,
+  Alert,
 } from "@material-tailwind/react";
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import UserContext from "@/UserContext";
-
 
 export function Login() {
   const [user, setUser, token, setToken] = useContext(UserContext);
@@ -27,7 +27,6 @@ export function Login() {
     return Object.keys(obj).length === 0;
   };
   
-
   useEffect(() => {
     // console.log("user", user, empty(user));
     if (!empty(user)) {
@@ -95,6 +94,20 @@ export function Login() {
     setPassword("password"); 
   }
 
+  const alerts = ["gray", "green", "orange", "red"];
+  const [showAlerts, setShowAlerts] = useState({
+      blue: true,
+      green: true,
+      orange: true,
+      red: true,
+    });
+    const [showAlertsWithIcon, setShowAlertsWithIcon] = useState({
+      blue: true,
+      green: true,
+      orange: true,
+      red: true,
+    });
+
   return (
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
@@ -111,6 +124,17 @@ export function Login() {
         </div>
         <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2" onSubmit={handleSubmit}>
           <div className="mb-1 flex flex-col gap-6">
+            {alerts.map((color) => (
+                <Alert
+                  key={color}
+                  open={showAlerts[color]}
+                  color={color}
+                  onClose={() => setShowAlerts((current) => ({ ...current, [color]: false }))}
+                >
+                  A simple {color} alert with an <a href="#">example link</a>. Give
+                  it a click if you like.
+              </Alert>
+            ))}
             <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
               Your email
             </Typography>
