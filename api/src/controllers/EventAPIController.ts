@@ -35,7 +35,19 @@ async function getUserEvents(req: Request, res: Response) {
 // vieno renginio gavimas
 async function getEvent(req: Request, res: Response) {
     try {
-        res.status(200).json();
+        const event = await prismaDb.event.findFirst(
+            {
+              where: { id: Number(req.params.id) }
+            }
+        );
+      
+        if (!event) {
+            res.status(404).json('Renginys nerastas');
+            
+            return;
+        };
+
+        res.status(200).json(event);
     } catch {
         res.status(500).json('Serverio klaida');
     }
