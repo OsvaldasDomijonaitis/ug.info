@@ -26,8 +26,13 @@ async function getAllEvents(_: Request, res: Response) {
 // vartojo renginių gavimas
 async function getUserEvents(req: Request, res: Response) {
     try {
-        res.status(200).json();
-    } catch {
+        const events = await prismaDb.event.findMany({
+            where: { status: 1, userId: parseInt(req.params.userId) },
+            orderBy: { date: 'asc' },
+        });
+        res.status(200).json(events);
+    } catch (err) {
+        console.error(err);
         res.status(500).json('Serverio klaida');
     }
 }
@@ -56,7 +61,40 @@ async function getEvent(req: Request, res: Response) {
 // naujo renginio sukūrimas
 async function storeEvent(req: Request, res: Response) {
     try {
-        
+        const validation = validationResult(req);
+        if (!validation.isEmpty()) {
+            res.status(400).json(validation.array());
+            return;
+        }
+
+        const data = matchedData(req);
+
+        const existing = await prismaDb.event.findFirst({
+            where: { slug: data.slug }
+        });
+
+        if (existing) {
+            res.status(400).json('Renginys su tokiu slug jau egzistuoja');
+            return;
+        }
+
+        const event = await prismaDb.event.create({
+            data: {
+                userId: Number(data.userId),
+                slug: data.slug,
+                name: data.name,
+                date: new Date(data.date),
+                place: data.place,
+                description: data.description,
+                img: data.img || null,
+                status: Number(data.status) || 2
+            }
+        });
+
+        res.status(201).json({
+            message: 'Renginys sukurtas',
+            id: event.id
+        });
     } catch {
         res.status(500).json('Serverio klaida');
     }
