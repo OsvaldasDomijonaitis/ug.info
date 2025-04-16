@@ -91,8 +91,8 @@ const validateStore = () => [
 
 // atnaujinimo validacija
 const validateUpdate = () => [
-    body('title').optional(),
-    body('date').optional(),
+    ...validateStore(),
+    body('status').trim().isInt().withMessage('Būsenos numeris yra privalomas')
 ];
 
 export default {
