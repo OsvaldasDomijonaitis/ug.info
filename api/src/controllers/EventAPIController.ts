@@ -26,8 +26,13 @@ async function getAllEvents(_: Request, res: Response) {
 // vartojo renginių gavimas
 async function getUserEvents(req: Request, res: Response) {
     try {
-        res.status(200).json();
-    } catch {
+        const events = await prismaDb.event.findMany({
+            where: { status: 1, userId: parseInt(req.params.userId) },
+            orderBy: { date: 'asc' },
+        });
+        res.status(200).json(events);
+    } catch (err) {
+        console.error(err);
         res.status(500).json('Serverio klaida');
     }
 }
