@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import { prisma } from "./app";
+import prismaDb from "./app";
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -12,7 +12,7 @@ const opts = {
 passport.use(
   new JwtStrategy(opts, async function (jwt_payload, done) {
     try {
-      const user = await prisma.user.findFirst({
+      const user = await prismaDb.user.findFirst({
         where: { id: jwt_payload.userid },
         omit: { password: true },
       });

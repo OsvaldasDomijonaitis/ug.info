@@ -4,7 +4,7 @@ import { body, validationResult, matchedData } from 'express-validator';
 import bcrypt from 'bcrypt';
 
 import { User } from './../../node_modules/.prisma/client/index.d';
-import { prisma as db } from '../app';
+import prismaDb from '../app';
 
 type userNoPassword = Partial<User>;
 
@@ -12,8 +12,6 @@ import jwt from 'jsonwebtoken';
 import passport from '../passport';
 
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET ?? '';
-
-// POST: /register, /login
 
 // -- // -- // -- // -- //
 
@@ -30,7 +28,7 @@ async function login (req: Request, res: Response) {
 
   const reqData = matchedData(req);
 
-  const user = await db.user.findFirst(
+  const user = await prismaDb.user.findFirst(
     {
       where: { email: reqData.email },
     }
@@ -102,7 +100,7 @@ const validateLogin = () => {
     body('email')
       .trim()
       .notEmpty()
-      .withMessage('El. pašto adresas privalomas')
+      .withMessage('El. pašto adresas yra privalomas')
       .escape()
       .isEmail()
       .withMessage('Neteisingas vartotojo el. pašto adresas'),

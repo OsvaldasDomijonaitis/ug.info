@@ -1,0 +1,114 @@
+-- CreateTable
+CREATE TABLE `User` (
+    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `role` TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    `status` TINYINT UNSIGNED NOT NULL DEFAULT 1,
+
+    UNIQUE INDEX `User_email_key`(`email`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Event` (
+    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER UNSIGNED NOT NULL,
+    `slug` VARCHAR(255) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `date` TIMESTAMP NOT NULL,
+    `place` VARCHAR(225) NOT NULL,
+    `description` TEXT NOT NULL,
+    `img` VARCHAR(255) NULL,
+    `status` INTEGER UNSIGNED NOT NULL DEFAULT 2,
+
+    UNIQUE INDEX `Event_slug_key`(`slug`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Rate` (
+    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER UNSIGNED NOT NULL,
+    `rate` SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+    `eventId` INTEGER UNSIGNED NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `EventTag` (
+    `eventId` INTEGER UNSIGNED NOT NULL,
+    `tagId` INTEGER UNSIGNED NOT NULL,
+
+    PRIMARY KEY (`eventId`, `tagId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Tag` (
+    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+
+    UNIQUE INDEX `Tag_name_key`(`name`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Post` (
+    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER UNSIGNED NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `body` TEXT NOT NULL,
+    `created` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PostTag` (
+    `postId` INTEGER UNSIGNED NOT NULL,
+    `tagId` INTEGER UNSIGNED NOT NULL,
+
+    PRIMARY KEY (`postId`, `tagId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Message` (
+    `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+    `postId` INTEGER UNSIGNED NOT NULL,
+    `userId` INTEGER UNSIGNED NOT NULL,
+    `body` TEXT NOT NULL,
+    `created` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Event` ADD CONSTRAINT `Event_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Rate` ADD CONSTRAINT `Rate_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Rate` ADD CONSTRAINT `Rate_eventId_fkey` FOREIGN KEY (`eventId`) REFERENCES `Event`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EventTag` ADD CONSTRAINT `EventTag_eventId_fkey` FOREIGN KEY (`eventId`) REFERENCES `Event`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EventTag` ADD CONSTRAINT `EventTag_tagId_fkey` FOREIGN KEY (`tagId`) REFERENCES `Tag`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Post` ADD CONSTRAINT `Post_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PostTag` ADD CONSTRAINT `PostTag_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PostTag` ADD CONSTRAINT `PostTag_tagId_fkey` FOREIGN KEY (`tagId`) REFERENCES `Tag`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Message` ADD CONSTRAINT `Message_postId_fkey` FOREIGN KEY (`postId`) REFERENCES `Post`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Message` ADD CONSTRAINT `Message_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

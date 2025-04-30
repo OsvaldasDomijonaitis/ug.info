@@ -1,9 +1,10 @@
 import express from 'express';
+import authController from '../controllers/AuthAPIController';
+import userController from '../controllers/UserAPIController';
 
 const router = express.Router();
 
-import authController from '../controllers/AuthAPIController';
-import userController from '../controllers/UserAPIController';
+// POST: /register, /login
 
 // -- // -- // -- // -- //
 
